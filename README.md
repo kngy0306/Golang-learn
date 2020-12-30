@@ -61,3 +61,26 @@ func main() {
 	}
 }
 ```
+
+### ポインタ
+- **&iでiのポインタを取得**
+- ***iでiのポインタが指す先の値を取得**
+
+```go
+func callByValue(i int) {
+	i++
+}
+
+func callByRef(i *int) {
+	*i++
+}
+
+func main() {
+	i := 0
+	callByValue(i)
+	fmt.Println(i) // 0
+
+	callByRef(&i)
+	fmt.Println(i) // 1
+}
+```
