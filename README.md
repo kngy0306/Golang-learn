@@ -36,3 +36,28 @@ func main() {
 	// [6 5 4 3 2 1] [5 4 3 2 1]
 }
 ```
+
+### map操作
+- 二つ目の戻り値を受け取ると、値が存在するかbool値が返る。
+- for文で取り出すとき、順序は保証されない
+
+```go
+func main() {
+	var month map[int]string = map[int]string{}
+
+	month[1] = "January"
+	month[2] = "February"
+
+	v, e := month[1]
+	fmt.Println(v, e) // January true
+
+	delete(month, 1)
+
+	v, e = month[1]
+	fmt.Println(v, e) // " " false
+	
+	for key, value := range month {
+    		fmt.Printf("%d %s\n", key, value)
+	}
+}
+```
