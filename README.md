@@ -11,6 +11,6 @@ import (
 )
 
 func main() {
-	f.Println(ToUpper("kona"))
+	f.Println(ToUpper("kona"))　　　　 // KONA 
 }
 ```
