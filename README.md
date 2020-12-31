@@ -84,3 +84,33 @@ func main() {
 	fmt.Println(i) // 1
 }
 ```
+
+### defer構文
+関数スコープのreturnの直後に実行される
+
+```go
+import (
+	"fmt"
+	"io/ioutil"
+	"os"
+)
+
+func main() {
+	filename := "sample.txt"
+
+	file, err := os.Open(filename)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
+
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+		}
+	}()
+
+	b, err := ioutil.ReadAll(file)
+	fmt.Println(string(b))
+}
+```
