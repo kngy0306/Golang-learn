@@ -114,3 +114,43 @@ func main() {
 	fmt.Println(string(b))
 }
 ```
+
+### コンストラクタ
+Newで始まる関数を定義し，その内部で構造体を生成するのが通例
+
+```go
+type Task struct {
+	ID     int
+	Detail string
+	done   bool
+}
+
+func NewTask(id int, detail string) *Task {
+	task := &Task{
+		ID:     id,
+		Detail: detail,
+		done:   false,
+	}
+	return task
+}
+
+func main() {
+	task := NewTask(1, "write blog")
+	fmt.Println(task.Detail) // write blog
+}
+```
+
+### メソッド
+レシーバに紐付けられた関数はメソッドに
+
+```go
+func (task *Task) Finish() {
+	task.done = true
+}
+
+func main() {
+	blogTask := NewTask(1, "write blog")
+	blogTask.Finish()
+	fmt.Println(blogTask.done) // true
+}
+```
