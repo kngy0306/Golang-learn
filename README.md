@@ -154,3 +154,49 @@ func main() {
 	fmt.Println(blogTask.done) // true
 }
 ```
+
+### 型の埋め込み
+
+```go
+type User struct {
+	FirstName string
+	LastName  string
+}
+
+func (u *User) PrintFullName() string {
+	fullname := fmt.Sprintf("%s %s", u.FirstName, u.LastName)
+	return fullname
+}
+
+func NewUser(firstName, lastName string) *User {
+	return &User{
+		FirstName: firstName,
+		LastName:  lastName,
+	}
+}
+
+type Task struct {
+	ID     int
+	Detail string
+	done   bool
+	*User  // User型の埋め込み
+}
+
+func NewTask(id int, detail, firstName, lastName string) *Task {
+	task := &Task{
+		ID:     id,
+		Detail: detail,
+		done:   false,
+		User:   NewUser(firstName, lastName),
+	}
+	return task
+}
+
+func main() {
+	task := NewTask(1, "write blog", "mirei", "sasaki")
+
+	fmt.Println(task.FirstName, task.LastName)
+	fmt.Println(task.PrintFullName())
+	// mirei sasaki
+}
+```
