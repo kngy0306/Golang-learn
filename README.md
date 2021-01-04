@@ -200,3 +200,42 @@ func main() {
 	// mirei sasaki
 }
 ```
+
+### json to struct & struct to json
+
+```go
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+)
+
+type Person struct {
+	ID    int `json:"id"`
+	Name  string
+	Email string
+}
+
+func main() {
+	person := &Person{
+		ID:    1,
+		Name:  "kona",
+		Email: "aaa@example.com",
+	}
+
+	b, err := json.Marshal(person)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// []byte→string 
+	fmt.Println(string(b)) // {"id":1,"Name":"kona","Email":"aaa@example.com"}
+
+	var p Person
+	byte := []byte(`{"id":1,"name":"kona","age":5}`)
+	e := json.Unmarshal(byte, &p)
+	if e != nil {
+		log.Fatal(e)
+	}
+	fmt.Println(p) // {1 kona }
+}
+```
