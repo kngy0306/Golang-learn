@@ -239,3 +239,34 @@ func main() {
 	fmt.Println(p) // {1 kona }
 }
 ```
+
+### io処理
+os.Create()関数にファイル名を渡すと、*os.File構造体へのポインタが取得できる。  
+*os.Fileは、io.ReadWriteCloserというインタフェース型であり、Read()，Write()，Close()の3つのメソッドを実装している。
+
+```go
+import (
+	"log"
+	"os"
+)
+
+func main() {
+	// ファイルの作成
+	file, err := os.Create("./file.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	// ファイルを閉じる処理
+	defer file.Close()
+
+	// Write()は[]byteを引数に取る
+	message := []byte("Hello world\n")
+
+	_, err = file.Write(message)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// もしくはFprintで出力先を指定する
+	// _, err = fmt.Fprint(file, "hello world\n")
+}
+```
