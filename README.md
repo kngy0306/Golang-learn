@@ -270,3 +270,29 @@ func main() {
 	// _, err = fmt.Fprint(file, "hello world\n")
 }
 ```
+
+### io/ioutilパッケージで簡単にファイル操作
+
+```go
+import (
+	"fmt"
+	"io/ioutil"
+	"log"
+)
+
+func main() {
+
+	hello := []byte("Hello world\n")
+	err := ioutil.WriteFile("./file.txt", hello, 0666) // 引数(ファイル名, データ, パーミッション)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// ioutil.ReadAll()は引数にio.Readerを渡し、全てを[]byteで返す
+	message, err := ioutil.ReadFile("./file.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(message))
+}
+```
