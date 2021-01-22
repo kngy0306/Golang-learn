@@ -1,25 +1,25 @@
 package main
 
 import (
+	"app/src/github.com/PuerkitoBio/goquery"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"strings"
 )
 
 func main() {
-	url := "https://zenn.dev/mi_/articles/498a82a0efa0ff"
-
-	res, err := http.Get(url)
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer res.Body.Close()
-
-	b, err := ioutil.ReadAll(res.Body)
+	url := "https://www.hinatazaka46.com/s/official/diary/member/list?ima=0000&ct=8"
+	doc, err := goquery.NewDocument(url)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	fmt.Println(string(b))
+	doc.Find(".p-blog-article").First().Find("img").Each(func(_ int, s *goquery.Selection) {
+		url, _ := s.Attr("src")
+		fmt.Println(url)
+	})
+
+	// First()なしで全部取得
+	// doc.Find(".p-blog-article").Find("img").Each(func(_ int, s *goquery.Selection) {
+	// 	url, _ := s.Attr("src")
+	// 	fmt.Println(url)
+	// })
 }
