@@ -1,0 +1,1174 @@
+AUTHOR: konakomoti
+TITLE: curlコマンドでnoteからデータを取得してみる
+BASENAME: 2020/12/17/141316
+STATUS: Publish
+ALLOW COMMENTS: 1
+CONVERT BREAKS: 0
+DATE: 12/17/2020 14:13:16
+CATEGORY: IT
+IMAGE: https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201217/20201217140430.png
+-----
+BODY:
+<h2>はじめに</h2>
+
+<p>使い方を公式で説明しているわけではないが、<a href="https://note.com/">note</a>には<a class="keyword" href="http://d.hatena.ne.jp/keyword/API">API</a>があるみたい。</p>
+
+<p><a href="https://note.com/hagure_melon/n/n964ff6f7ad0e">【2020年度】noteのAPI一覧【完全版】</a></p>
+
+<p><a class="keyword" href="http://d.hatena.ne.jp/keyword/curl">curl</a>コマンドの使い方を学ぶついでに、noteに投稿されている記事のタイトルを取得してみる。</p>
+
+<h2><a class="keyword" href="http://d.hatena.ne.jp/keyword/curl">curl</a>コマンドとjqコマンド</h2>
+
+<pre class="code" data-lang="" data-unlink>$ curl --version
+curl 7.64.1</pre>
+
+
+
+
+<pre class="code" data-lang="" data-unlink>$ jq --version
+jq-1.6</pre>
+
+
+<p>2020/12/17当時</p>
+
+<h2><a class="keyword" href="http://d.hatena.ne.jp/keyword/curl">curl</a>コマンドでnoteの、特定ユーザの記事タイトルを取得してみる</h2>
+
+<p><figure class="figure-image figure-image-fotolife" title="実行時の投稿記事"><span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201217/20201217140430.png" alt="f:id:konakomoti:20201217140430p:plain" title="" class="hatena-fotolife" itemprop="image"></span><figcaption>実行時の投稿記事</figcaption></figure></p>
+
+<pre class="code" data-lang="" data-unlink>$ curl https://note.com/api/v2/creators/kypowder/contents\?kind=note\&amp;page=1</pre>
+
+
+<p>?と&amp;を<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%A8%A5%B9">エス</a>ケープするため、\を入れている。</p>
+
+<pre class="code" data-lang="" data-unlink>{&#34;data&#34;:{&#34;contents&#34;:[{&#34;id&#34;:24798670,&#34;type&#34;:&#34;TextNote&#34;,&#34;status&#34;:&#34;published&#34;,&#34;name&#34;:&#34;テストタイトル2&#34;,&#34;description&#34;:null,&#34;price&#34;:0,&#34;key&#34;:&#34;n4551d7093a0b&#34;,&#34;slug&#34;:&#34;slug-n4551d7093a0b&#34;,&#34;publishAt&#34;:&#34;2020/12/17 13:17&#34;,&#34;thumbnailExternalUrl&#34;:&#34;&#34;,&#34;eyecatch&#34;:null,&#34;user&#34;:{&#34;id&#34;:3414203,&#34;name&#34;:&#34;こな&#34;,&#34;urlname&#34;:&#34;kypowder&#34;,&#34;nickname&#34;:&#34;こな&#34;,&#34;userProfileImagePath&#34;:&#34;https://assets.st-note.com/production/uploads/images/31550000/profile_f1ad3c646727d3424b996812d90901f0.jpg?fit=bounds\u0026format=jpeg\u0026quality=45\u0026width=330&#34;,&#34;customDomain&#34;:null,&#34;disableSupport&#34;:false,&#34;likeAppealText&#34;:null,&#34;likeAppealImage&#34;:null,&#34;purchaseAppealTextNote&#34;:null,&#34;twitterNickname&#34;:&#34;YoKaU2&#34;},&#34;canRead&#34;:true,&#34;isAuthor&#34;:false,......</pre>
+
+
+<p>見やすくするために<code>jq</code>コマンドをパイプでつなげる。</p>
+
+<pre class="code" data-lang="" data-unlink>$ curl https://note.com/api/v2/creators/kypowder/contents\?kind=note\&amp;page=1 | jq</pre>
+
+
+<p><figure class="figure-image figure-image-fotolife" title="jqをパイプでつなげた"><span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201217/20201217140531.png" alt="f:id:konakomoti:20201217140531p:plain" title="" class="hatena-fotolife" itemprop="image"></span><figcaption>jqをパイプでつなげた</figcaption></figure></p>
+
+<pre class="code" data-lang="" data-unlink>  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  4473    0  4473    0     0  20612      0 --:--:-- --:--:-- --:--:-- 20612</pre>
+
+
+<p>↑　最初の数行に表示される転送情報をスキップしたい場合、<code>-s</code>オプションを追加する。</p>
+
+<p>しかし、エラー情報まで消えてしまうので、<code>-S</code>も追加しとく。</p>
+
+<pre class="code" data-lang="" data-unlink>$ curl -Ss https://note.com/api/v2/creators/kypowder/contents\?kind=note\&amp;page=1 | jq</pre>
+
+
+<h4>オブジェクトの部分抽出</h4>
+
+<pre class="code" data-lang="" data-unlink>$ curl -Ss https://note.com/api/v2/creators/kypowder/contents\?kind=note\&amp;page=1 | jq &#34;.data&#34;</pre>
+
+
+<p><figure class="figure-image figure-image-fotolife" title=".dataの中身を抽出"><span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201217/20201217140625.png" alt="f:id:konakomoti:20201217140625p:plain" title="" class="hatena-fotolife" itemprop="image"></span><figcaption>.dataの中身を抽出</figcaption></figure></p>
+
+<p>data{</p>
+
+<p>}</p>
+
+<p>の中を抽出できた。</p>
+
+<p>配列を抽出する場合、</p>
+
+<pre class="code" data-lang="" data-unlink>$ curl -Ss https://note.com/api/v2/creators/kypowder/contents\?kind=note\&amp;page=1 | jq &#34;.data | .contents&#34;</pre>
+
+
+<p>とすることで</p>
+
+<p><figure class="figure-image figure-image-fotolife" title=".contentsの中身を抽出"><span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201217/20201217140708.png" alt="f:id:konakomoti:20201217140708p:plain" title="" class="hatena-fotolife" itemprop="image"></span><figcaption>.contentsの中身を抽出</figcaption></figure></p>
+
+<p>配列に対して、<code>.xx</code>は適応できないので、<code>.[]</code>を使う。</p>
+
+<pre class="code" data-lang="" data-unlink>$ curl -Ss https://note.com/api/v2/creators/kypowder/contents\?kind=note\&amp;page=1 | jq &#34;.data | .contents[]&#34;</pre>
+
+
+<p><figure class="figure-image figure-image-fotolife" title=".<span data-unlink>で、外側の配列を取り除く"><span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201217/20201217140745.png" alt="f:id:konakomoti:20201217140745p:plain" title="" class="hatena-fotolife" itemprop="image"></span><figcaption>.</span>で、外側の配列を取り除く</figcaption></figure></p>
+
+<p>一番外側にある配列を除去してくれる。</p>
+
+<p><code>.contents | .[]</code>としなくても<code>.contents[]</code>で繋げられる。</p>
+
+<p><code>".data.contents[]"</code>でもいける。</p>
+
+<pre class="code" data-lang="" data-unlink>$ curl -Ss https://note.com/api/v2/creators/kypowder/contents\?kind=note\&amp;page=1 | jq &#34;.data | .contents[] | .name&#34;</pre>
+
+
+<p>オブジェクトになったので<code>.xx</code>で指定することで、</p>
+
+<p><span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201217/20201217140820.png" alt="f:id:konakomoti:20201217140820p:plain" title="" class="hatena-fotolife" itemprop="image"></span></p>
+
+<p>投稿記事のタイトルのみを抽出できた。</p>
+
+<p>これをさらに整形することもでき、</p>
+
+<pre class="code" data-lang="" data-unlink>$ curl -Ss https://note.com/api/v2/creators/kypowder/contents\?kind=note\&amp;page=1 | jq &#34;{title: [.data | .contents[].name]}&#34;</pre>
+
+
+<p>とすることで、</p>
+
+<p><span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201217/20201217140838.png" alt="f:id:konakomoti:20201217140838p:plain" title="" class="hatena-fotolife" itemprop="image"></span></p>
+
+<p>いい感じに作り直すこともできる。</p>
+
+<h1>参考情報</h1>
+
+<p><a href="https://qiita.com/yasuhiroki/items/a569d3371a66e365316f">curl コマンド 使い方メモ</a></p>
+
+<p><a href="https://dev.classmethod.jp/articles/road-to-jq-master-novice/">jqを活用してAPIレスポンス等から欲しい情報だけを抽出する【初級編】</a></p>
+
+<p><a href="https://note.com/hagure_melon/n/n964ff6f7ad0e">【2020年度】noteのAPI一覧【完全版】</a></p>
+
+-----
+--------
+AUTHOR: konakomoti
+TITLE: PHPでテストを書く（PHPUnit）
+BASENAME: 2020/12/16/122401
+STATUS: Publish
+ALLOW COMMENTS: 1
+CONVERT BREAKS: 0
+DATE: 12/16/2020 12:24:01
+CATEGORY: IT
+CATEGORY: PHP
+-----
+BODY:
+<ul class="table-of-contents">
+    <li><a href="#自動テストの重要性">自動テストの重要性</a></li>
+    <li><a href="#PHPUnitのインストール">PHPUnitのインストール</a></li>
+    <li><a href="#テストの書き方">テストの書き方</a></li>
+    <li><a href="#実行">実行</a></li>
+    <li><a href="#おまけエイリアスの作成">おまけ（エイリアスの作成）</a></li>
+    <li><a href="#参考情報">参考情報</a></li>
+</ul>
+
+<h1 id="自動テストの重要性">自動テストの重要性</h1>
+
+<p>コードを書き換えた後、再テストには大きな労力がかかる。 => <strong>自動テスト</strong>という仕組みが役に立つ。</p>
+
+<p>参考書籍に則り、<strong><a class="keyword" href="http://d.hatena.ne.jp/keyword/PHPUnit">PHPUnit</a></strong>という自動テストツールを使用する。</p>
+
+<p>他にも様々なツールがあるみたい。</p>
+
+<p><a href="https://qiita.com/geckothic/items/adeb3eddb4131ebff2cf">PHPの自動テストフレームワークってどんなんがあるん？</a></p>
+
+<h1 id="PHPUnitのインストール"><a class="keyword" href="http://d.hatena.ne.jp/keyword/PHPUnit">PHPUnit</a>のインストール</h1>
+
+<p><a class="keyword" href="http://d.hatena.ne.jp/keyword/PHPUnit">PHPUnit</a>のインストール</p>
+
+<pre class="code" data-lang="" data-unlink>composer require --dev phpunit/phpunit</pre>
+
+
+<h1 id="テストの書き方">テストの書き方</h1>
+
+<ul>
+<li><a class="keyword" href="http://d.hatena.ne.jp/keyword/PHPUnit">PHPUnit</a>に用意されてる TestCaseを継承したクラスを作成する必要がある。</li>
+<li>クラス名、ファイル名は<code>Test</code>で終わる必要がある。</li>
+<li>テストの成功か、失敗かはメソッド内に書かれた<strong>assertOOメソッド</strong>が真を返すかどうかで決まる。</li>
+</ul>
+
+
+<h1 id="実行">実行</h1>
+
+<p>ファイル名: MyTest.<a class="keyword" href="http://d.hatena.ne.jp/keyword/php">php</a></p>
+
+<pre class="code lang-php" data-lang="php" data-unlink><span class="synSpecial">&lt;?php</span>
+<span class="synPreProc">require_once</span> <span class="synIdentifier">dirname</span><span class="synSpecial">(</span><span class="synConstant">__FILE__</span><span class="synSpecial">)</span> <span class="synStatement">.</span> <span class="synConstant">'/vendor/autoload.php'</span>;
+
+<span class="synPreProc">use</span> PHPUnit\Framework\TestCase;
+
+<span class="synType">class</span> MyTest <span class="synType">extends</span> TestCase
+<span class="synSpecial">{</span>
+  <span class="synComment">// テスト処理</span>
+  <span class="synType">public</span> <span class="synPreProc">function</span> test1<span class="synSpecial">()</span>
+  <span class="synSpecial">{</span>
+    <span class="synStatement">$</span><span class="synIdentifier">array</span> <span class="synStatement">=</span> <span class="synSpecial">[</span><span class="synConstant">1</span>, <span class="synConstant">5</span>, <span class="synConstant">10</span><span class="synSpecial">]</span>;
+
+    <span class="synComment">// 配列（$array）の要素数が３つであることをテストする。</span>
+    <span class="synStatement">$</span><span class="synIdentifier">this</span><span class="synType">-&gt;</span>assertCount<span class="synSpecial">(</span><span class="synConstant">3</span>, <span class="synStatement">$</span><span class="synIdentifier">array</span><span class="synSpecial">)</span>;
+  <span class="synSpecial">}</span>
+
+  <span class="synType">public</span> <span class="synPreProc">function</span> test2<span class="synSpecial">()</span>
+  <span class="synSpecial">{</span>
+    <span class="synStatement">$</span><span class="synIdentifier">num1</span> <span class="synStatement">=</span> <span class="synConstant">1</span>;
+    <span class="synStatement">$</span><span class="synIdentifier">num2</span> <span class="synStatement">=</span> <span class="synConstant">1</span>;
+
+    <span class="synComment">// ２つの値が型も含めて等しいことをテストする。</span>
+    <span class="synStatement">$</span><span class="synIdentifier">this</span><span class="synType">-&gt;</span>assertSame<span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">num1</span>, <span class="synStatement">$</span><span class="synIdentifier">num2</span><span class="synSpecial">)</span>;
+  <span class="synSpecial">}</span>
+
+  <span class="synType">public</span> <span class="synPreProc">function</span> test3<span class="synSpecial">()</span>
+  <span class="synSpecial">{</span>
+    <span class="synStatement">$</span><span class="synIdentifier">text</span> <span class="synStatement">=</span> <span class="synConstant">&quot;hello&quot;</span>;
+
+    <span class="synComment">// 値が空であることをテストする。</span>
+    <span class="synStatement">$</span><span class="synIdentifier">this</span><span class="synType">-&gt;</span>assertEmpty<span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">text</span><span class="synSpecial">)</span>;
+  <span class="synSpecial">}</span>
+<span class="synSpecial">}</span>
+</pre>
+
+
+<p><strong>実行</strong></p>
+
+<pre class="code" data-lang="" data-unlink>./vendor/phpunit/phpunit/phpunit MyTest.php</pre>
+
+
+<p><strong>実行結果</strong></p>
+
+<pre class="code" data-lang="" data-unlink>PHPUnit 9.5.0 by Sebastian Bergmann and contributors.
+
+..F                                                                 3 / 3 (100%)
+
+Time: 00:00.008, Memory: 4.00 MB
+
+There was 1 failure:
+
+1) MyTest::test3
+Failed asserting that a string is empty.
+
+/Users/kona/PHPUnitApp/MyTest.php:31
+
+FAILURES!
+Tests: 3, Assertions: 3, Failures: 1.</pre>
+
+
+<p>↑の実行結果は２つが成功し、１つが失敗している。</p>
+
+<p>2行目が結果を示している。</p>
+
+<ul>
+<li>「.」が<strong>成功</strong></li>
+<li>「F」が失敗</li>
+<li>「E」がエラー</li>
+<li>「R」がリスク</li>
+<li>「S」がスキップ</li>
+<li>「I」が不完全</li>
+</ul>
+
+
+<h1 id="おまけエイリアスの作成">おまけ（<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%A8%A5%A4%A5%EA%A5%A2%A5%B9">エイリアス</a>の作成）</h1>
+
+<p><a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%A8%A5%A4%A5%EA%A5%A2%A5%B9">エイリアス</a>を作成して楽しよう</p>
+
+<pre class="code" data-lang="" data-unlink>alias phpunit=&#34;./vendor/phpunit/phpunit/phpunit&#34;</pre>
+
+
+<p>以降、</p>
+
+<pre class="code" data-lang="" data-unlink>phpunit MyTest.php</pre>
+
+
+<p>で実行可能。</p>
+
+<h1 id="参考情報">参考情報</h1>
+
+<p><a href="https://qiita.com/geckothic/items/adeb3eddb4131ebff2cf">PHPの自動テストフレームワークってどんなんがあるん？</a></p>
+
+<p><div class="hatena-asin-detail"><a href="https://www.amazon.co.jp/exec/obidos/ASIN/4297114704/hatena-blog-22/"><img src="https://m.media-amazon.com/images/I/41vb-rC5lOL.jpg" class="hatena-asin-detail-image" alt="PHP本格入門[下] ~オブジェクト指向設計、セキュリティ、現場で使える実践ノウハウまで" title="PHP本格入門[下] ~オブジェクト指向設計、セキュリティ、現場で使える実践ノウハウまで"></a><div class="hatena-asin-detail-info"><p class="hatena-asin-detail-title"><a href="https://www.amazon.co.jp/exec/obidos/ASIN/4297114704/hatena-blog-22/">PHP本格入門[下] ~オブジェクト指向設計、セキュリティ、現場で使える実践ノウハウまで</a></p><ul><li><span class="hatena-asin-detail-label">作者:</span><a href="http://d.hatena.ne.jp/keyword/%C2%E7%B2%C8%20%C0%B5%C5%D0" class="keyword">大家 正登</a></li><li><span class="hatena-asin-detail-label">発売日:</span> 2020/08/03</li><li><span class="hatena-asin-detail-label">メディア:</span> 単行本（ソフトカバー）</li></ul></div><div class="hatena-asin-detail-foot"></div></div></p>
+
+-----
+--------
+AUTHOR: konakomoti
+TITLE: 簡単なRESTful APIサーバーを作ってみる
+BASENAME: 2020/12/14/100351
+STATUS: Publish
+ALLOW COMMENTS: 1
+CONVERT BREAKS: 0
+DATE: 12/14/2020 10:03:51
+CATEGORY: IT
+CATEGORY: PHP
+IMAGE: https://m.media-amazon.com/images/I/41vb-rC5lOL.jpg
+-----
+BODY:
+<h1>RESTful <a class="keyword" href="http://d.hatena.ne.jp/keyword/API">API</a>って？</h1>
+
+<p>標準的なWebAPIの設計方式。<br />
+リソースに対するURLを1つだけ用意し、HTTPメソッドの切り替えで操作を表す。</p>
+
+<h4>例</h4>
+
+<ul>
+<li>読書リストのうち、ID「0001」の本を取得する
+
+<ul>
+<li>（URL）<a href="https://xxxxx/readinglist/0001">https://xxxxx/readinglist/0001</a></li>
+<li>（HTTPメソッド） GET</li>
+</ul>
+</li>
+<li>読書リストのうち、ID「1000」の本を削除する
+
+<ul>
+<li>（URL）<a href="https://xxxxx/readinglist/1000">https://xxxxx/readinglist/1000</a></li>
+<li>（HTTPメソッド） DELETE</li>
+</ul>
+</li>
+</ul>
+
+
+<h1>RESTful <a class="keyword" href="http://d.hatena.ne.jp/keyword/API">API</a>はステートレスであるべき</h1>
+
+<p>ステートレス = WebAPIサーバはセッション変数を持つべきではない。<br />
+サーバ間で共有ができなくなる。などの問題があるから。<br />
+スケーラビリティの問題。（今後サーバを増やしたいときとか）</p>
+
+<h1><a class="keyword" href="http://d.hatena.ne.jp/keyword/PHP">PHP</a>でRESTfulAPIサーバ、クライアントの作成</h1>
+
+<h4>環境</h4>
+
+<p><a class="keyword" href="http://d.hatena.ne.jp/keyword/macOS">macOS</a> BigSur 11.0.1</p>
+
+<p><a class="keyword" href="http://d.hatena.ne.jp/keyword/PHP">PHP</a> 7.3.22</p>
+
+<p><a class="keyword" href="http://d.hatena.ne.jp/keyword/MAMP">MAMP</a> 5.7</p>
+
+<h3>サーバサイドの<a class="keyword" href="http://d.hatena.ne.jp/keyword/PHP">PHP</a>ファイルを作成</h3>
+
+<pre class="code lang-php" data-lang="php" data-unlink><span class="synSpecial">&lt;?php</span>
+<span class="synStatement">declare</span><span class="synSpecial">(</span>strict_types<span class="synStatement">=</span><span class="synConstant">1</span><span class="synSpecial">)</span>;
+
+<span class="synComment">// GET</span>
+<span class="synPreProc">function</span> getMessage<span class="synSpecial">()</span>
+<span class="synSpecial">{</span>
+  <span class="synStatement">$</span><span class="synIdentifier">res</span> <span class="synStatement">=</span> <span class="synSpecial">[</span>
+    <span class="synConstant">'status'</span> <span class="synStatement">=&gt;</span> <span class="synConstant">'success'</span>,
+    <span class="synConstant">'message'</span> <span class="synStatement">=&gt;</span> <span class="synConstant">'ユーザ: '</span> <span class="synStatement">.</span> <span class="synStatement">$</span><span class="synIdentifier">_GET</span><span class="synSpecial">[</span><span class="synConstant">'userName'</span><span class="synSpecial">]</span> <span class="synStatement">.</span> <span class="synConstant">'の好きな食べ物は、'</span> <span class="synStatement">.</span> <span class="synStatement">$</span><span class="synIdentifier">_GET</span><span class="synSpecial">[</span><span class="synConstant">'food'</span><span class="synSpecial">]</span> <span class="synStatement">.</span> <span class="synConstant">'です。'</span>,
+  <span class="synSpecial">]</span>;
+  <span class="synStatement">return</span> <span class="synStatement">$</span><span class="synIdentifier">res</span>;
+<span class="synSpecial">}</span>
+
+<span class="synComment">//POST</span>
+<span class="synPreProc">function</span> postMessage<span class="synSpecial">()</span>
+<span class="synSpecial">{</span>
+  <span class="synStatement">$</span><span class="synIdentifier">res</span> <span class="synStatement">=</span> <span class="synSpecial">[</span>
+    <span class="synConstant">'status'</span> <span class="synStatement">=&gt;</span> <span class="synConstant">'success'</span>,
+    <span class="synConstant">'message'</span> <span class="synStatement">=&gt;</span> <span class="synConstant">'ユーザ: '</span> <span class="synStatement">.</span> <span class="synStatement">$</span><span class="synIdentifier">_POST</span><span class="synSpecial">[</span><span class="synConstant">'userName'</span><span class="synSpecial">]</span> <span class="synStatement">.</span> <span class="synConstant">'の好きな食べ物を、'</span> <span class="synStatement">.</span> <span class="synStatement">$</span><span class="synIdentifier">_POST</span><span class="synSpecial">[</span><span class="synConstant">'food'</span><span class="synSpecial">]</span> <span class="synStatement">.</span> <span class="synConstant">'に登録しました。'</span>,
+  <span class="synSpecial">]</span>;
+  <span class="synStatement">return</span> <span class="synStatement">$</span><span class="synIdentifier">res</span>;
+<span class="synSpecial">}</span>
+
+<span class="synComment">// PUT</span>
+<span class="synPreProc">function</span> putMessage<span class="synSpecial">()</span>
+<span class="synSpecial">{</span>
+  <span class="synIdentifier">parse_str</span><span class="synSpecial">(</span><span class="synIdentifier">file_get_contents</span><span class="synSpecial">(</span><span class="synConstant">'php://input'</span><span class="synSpecial">)</span>, <span class="synStatement">$</span><span class="synIdentifier">putRequest</span><span class="synSpecial">)</span>;
+  <span class="synStatement">$</span><span class="synIdentifier">res</span> <span class="synStatement">=</span> <span class="synSpecial">[</span>
+      <span class="synConstant">'status'</span> <span class="synStatement">=&gt;</span> <span class="synConstant">'success'</span>,
+      <span class="synConstant">'message'</span> <span class="synStatement">=&gt;</span> <span class="synConstant">'ユーザ: '</span> <span class="synStatement">.</span> <span class="synStatement">$</span><span class="synIdentifier">putRequest</span><span class="synSpecial">[</span><span class="synConstant">'userName'</span><span class="synSpecial">]</span> <span class="synStatement">.</span> <span class="synConstant">'の好きな食べ物を、 '</span> <span class="synStatement">.</span> <span class="synStatement">$</span><span class="synIdentifier">putRequest</span><span class="synSpecial">[</span><span class="synConstant">'food'</span><span class="synSpecial">]</span> <span class="synStatement">.</span> <span class="synConstant">'に変更しました。'</span>,
+  <span class="synSpecial">]</span>;
+  <span class="synStatement">return</span> <span class="synStatement">$</span><span class="synIdentifier">res</span>;
+<span class="synSpecial">}</span>
+
+<span class="synComment">// DELETE</span>
+<span class="synPreProc">function</span> deleteMessage<span class="synSpecial">()</span>
+<span class="synSpecial">{</span>
+  <span class="synIdentifier">parse_str</span><span class="synSpecial">(</span><span class="synIdentifier">file_get_contents</span><span class="synSpecial">(</span><span class="synConstant">'php://input'</span><span class="synSpecial">)</span>, <span class="synStatement">$</span><span class="synIdentifier">deleteRequest</span><span class="synSpecial">)</span>;
+  <span class="synStatement">$</span><span class="synIdentifier">res</span> <span class="synStatement">=</span> <span class="synSpecial">[</span>
+      <span class="synConstant">'status'</span> <span class="synStatement">=&gt;</span> <span class="synConstant">'success'</span>,
+      <span class="synConstant">'message'</span> <span class="synStatement">=&gt;</span> <span class="synConstant">'ユーザ: '</span> <span class="synStatement">.</span> <span class="synStatement">$</span><span class="synIdentifier">deleteRequest</span><span class="synSpecial">[</span><span class="synConstant">'userName'</span><span class="synSpecial">]</span> <span class="synStatement">.</span> <span class="synConstant">'の好きな食べ物、'</span> <span class="synStatement">.</span> <span class="synStatement">$</span><span class="synIdentifier">deleteRequest</span><span class="synSpecial">[</span><span class="synConstant">'food'</span><span class="synSpecial">]</span> <span class="synStatement">.</span> <span class="synConstant">'を削除しました。'</span>,
+  <span class="synSpecial">]</span>;
+  <span class="synStatement">return</span> <span class="synStatement">$</span><span class="synIdentifier">res</span>;
+<span class="synSpecial">}</span>
+
+<span class="synStatement">switch</span> <span class="synSpecial">(</span><span class="synIdentifier">strtolower</span><span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">_SERVER</span><span class="synSpecial">[</span><span class="synConstant">'REQUEST_METHOD'</span><span class="synSpecial">]))</span> <span class="synSpecial">{</span>
+  <span class="synStatement">case</span> <span class="synConstant">'get'</span><span class="synStatement">:</span>
+    <span class="synPreProc">echo</span> <span class="synIdentifier">json_encode</span><span class="synSpecial">(</span>getMessage<span class="synSpecial">())</span>;
+    <span class="synStatement">break</span>;
+  <span class="synStatement">case</span> <span class="synConstant">'post'</span><span class="synStatement">:</span>
+    <span class="synPreProc">echo</span> <span class="synIdentifier">json_encode</span><span class="synSpecial">(</span>postMessage<span class="synSpecial">())</span>;
+    <span class="synStatement">break</span>;
+  <span class="synStatement">case</span> <span class="synConstant">'put'</span><span class="synStatement">:</span>
+    <span class="synPreProc">echo</span> <span class="synIdentifier">json_encode</span><span class="synSpecial">(</span>putMessage<span class="synSpecial">())</span>;
+    <span class="synStatement">break</span>;
+  <span class="synStatement">case</span> <span class="synConstant">'delete'</span><span class="synStatement">:</span>
+    <span class="synPreProc">echo</span> <span class="synIdentifier">json_encode</span><span class="synSpecial">(</span>deleteMessage<span class="synSpecial">())</span>;
+    <span class="synStatement">break</span>;
+<span class="synSpecial">}</span>
+</pre>
+
+
+<h3>クライアントサイドの<a class="keyword" href="http://d.hatena.ne.jp/keyword/PHP">PHP</a>ファイルを作成</h3>
+
+<p>cUEL関数を使用。</p>
+
+<ol>
+<li><code>curl_init()</code> でURLを指定。<a class="keyword" href="http://d.hatena.ne.jp/keyword/cURL">cURL</a>ハンドルを取得。</li>
+<li><code>curl_setopt()</code> でオプションの指定。</li>
+<li><code>curl_exec()</code> でハンドルを渡し、リク<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%A8%A5%B9">エス</a>トを送信。レスポンスを取得。</li>
+<li><code>curl_close()</code> でハンドルを閉じる。</li>
+</ol>
+
+
+<h4>GET</h4>
+
+<pre class="code lang-php" data-lang="php" data-unlink><span class="synSpecial">&lt;?php</span>
+<span class="synStatement">declare</span><span class="synSpecial">(</span>strict_types<span class="synStatement">=</span><span class="synConstant">1</span><span class="synSpecial">)</span>;
+
+<span class="synStatement">$</span><span class="synIdentifier">params</span> <span class="synStatement">=</span> <span class="synSpecial">[</span>
+    <span class="synConstant">'userId'</span> <span class="synStatement">=&gt;</span> <span class="synConstant">1001</span>,
+    <span class="synConstant">'userName'</span> <span class="synStatement">=&gt;</span> <span class="synConstant">&quot;kona&quot;</span>,
+    <span class="synConstant">'food'</span> <span class="synStatement">=&gt;</span> <span class="synConstant">'抹茶'</span>,
+<span class="synSpecial">]</span>;
+
+<span class="synStatement">$</span><span class="synIdentifier">url</span> <span class="synStatement">=</span> <span class="synConstant">&quot;http://localhost:8888/server.php?&quot;</span> <span class="synStatement">.</span> <span class="synIdentifier">http_build_query</span><span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">params</span><span class="synSpecial">)</span>;
+
+<span class="synStatement">$</span><span class="synIdentifier">handle</span> <span class="synStatement">=</span> <span class="synIdentifier">curl_init</span><span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">url</span><span class="synSpecial">)</span>;
+<span class="synIdentifier">curl_setopt</span><span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">handle</span>, CURLOPT_RETURNTRANSFER, <span class="synConstant">true</span><span class="synSpecial">)</span>;
+<span class="synStatement">$</span><span class="synIdentifier">apiResponse</span> <span class="synStatement">=</span> <span class="synIdentifier">json_decode</span><span class="synSpecial">(</span><span class="synIdentifier">curl_exec</span><span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">handle</span><span class="synSpecial">)</span>, <span class="synConstant">true</span><span class="synSpecial">)</span>;
+<span class="synIdentifier">curl_close</span><span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">handle</span><span class="synSpecial">)</span>;
+
+<span class="synPreProc">echo</span> <span class="synConstant">&quot;サーバからの応答:</span><span class="synSpecial">\n</span><span class="synConstant">&quot;</span>;
+<span class="synIdentifier">print_r</span><span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">apiResponse</span><span class="synSpecial">)</span>;
+</pre>
+
+
+<p>実行結果</p>
+
+<pre class="code shell" data-lang="shell" data-unlink>サーバからの応答:
+Array
+(
+    [status] =&gt; success
+    [message] =&gt; ユーザ: konaの好きな食べ物は、抹茶です。
+)</pre>
+
+
+<p><code>http_build_query()</code>で<a class="keyword" href="http://d.hatena.ne.jp/keyword/%CF%A2%C1%DB%C7%DB%CE%F3">連想配列</a>をパラメータ文字列へ。</p>
+
+<pre class="code lang-php" data-lang="php" data-unlink>$params = [
+        'userId' =<span class="synError">&gt;</span> 1001,
+        'userName' =<span class="synError">&gt;</span> &quot;kona&quot;,
+        'food' =<span class="synError">&gt;</span> '抹茶',
+    ];
+</pre>
+
+
+<p>↓</p>
+
+<pre class="code" data-lang="" data-unlink>userId=1001&amp;userName=kona&amp;food=抹茶（Unicodeに変換される）</pre>
+
+
+<h4>POST</h4>
+
+<pre class="code lang-php" data-lang="php" data-unlink><span class="synSpecial">&lt;?php</span>
+<span class="synStatement">declare</span><span class="synSpecial">(</span>strict_types<span class="synStatement">=</span><span class="synConstant">1</span><span class="synSpecial">)</span>;
+
+<span class="synStatement">$</span><span class="synIdentifier">params</span> <span class="synStatement">=</span> <span class="synSpecial">[</span>
+    <span class="synConstant">'userId'</span> <span class="synStatement">=&gt;</span> <span class="synConstant">1001</span>,
+    <span class="synConstant">'userName'</span> <span class="synStatement">=&gt;</span> <span class="synConstant">&quot;kona&quot;</span>,
+    <span class="synConstant">'food'</span> <span class="synStatement">=&gt;</span> <span class="synConstant">'抹茶'</span>,
+<span class="synSpecial">]</span>;
+
+<span class="synStatement">$</span><span class="synIdentifier">opt</span> <span class="synStatement">=</span> <span class="synSpecial">[</span>
+    CURLOPT_URL <span class="synStatement">=&gt;</span> <span class="synConstant">'http://localhost:8888/server.php'</span>,
+    CURLOPT_CUSTOMREQUEST <span class="synStatement">=&gt;</span> <span class="synConstant">'POST'</span>,
+    CURLOPT_POSTFIELDS <span class="synStatement">=&gt;</span> <span class="synStatement">$</span><span class="synIdentifier">params</span>,
+    CURLOPT_RETURNTRANSFER <span class="synStatement">=&gt;</span> <span class="synConstant">true</span>,
+<span class="synSpecial">]</span>;
+
+<span class="synStatement">$</span><span class="synIdentifier">handle</span> <span class="synStatement">=</span> <span class="synIdentifier">curl_init</span><span class="synSpecial">()</span>;
+curl_setopt_array<span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">handle</span>, <span class="synStatement">$</span><span class="synIdentifier">opt</span><span class="synSpecial">)</span>;
+<span class="synStatement">$</span><span class="synIdentifier">apiResponse</span> <span class="synStatement">=</span> <span class="synIdentifier">json_decode</span><span class="synSpecial">(</span><span class="synIdentifier">curl_exec</span><span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">handle</span><span class="synSpecial">)</span>, <span class="synConstant">true</span><span class="synSpecial">)</span>;
+<span class="synIdentifier">curl_close</span><span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">handle</span><span class="synSpecial">)</span>;
+
+<span class="synPreProc">echo</span> <span class="synConstant">&quot;サーバからの応答:</span><span class="synSpecial">\n</span><span class="synConstant">&quot;</span>;
+<span class="synIdentifier">print_r</span><span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">apiResponse</span><span class="synSpecial">)</span>;
+</pre>
+
+
+<p>実行結果</p>
+
+<pre class="code shell" data-lang="shell" data-unlink>サーバからの応答:
+Array
+(
+    [status] =&gt; success
+    [message] =&gt; ユーザ: konaの好きな食べ物を、抹茶に登録しました。
+)</pre>
+
+
+<p><code>curl_setopt_array()</code>で配列で指定した設定を適応できる。</p>
+
+<h4>PUT</h4>
+
+<pre class="code lang-php" data-lang="php" data-unlink><span class="synSpecial">&lt;?php</span>
+<span class="synStatement">declare</span><span class="synSpecial">(</span>strict_types<span class="synStatement">=</span><span class="synConstant">1</span><span class="synSpecial">)</span>;
+
+<span class="synStatement">$</span><span class="synIdentifier">params</span> <span class="synStatement">=</span> <span class="synSpecial">[</span>
+    <span class="synConstant">'userId'</span> <span class="synStatement">=&gt;</span> <span class="synConstant">1001</span>,
+    <span class="synConstant">'userName'</span> <span class="synStatement">=&gt;</span> <span class="synConstant">&quot;kona&quot;</span>,
+    <span class="synConstant">'food'</span> <span class="synStatement">=&gt;</span> <span class="synConstant">'抹茶アイス'</span>,
+<span class="synSpecial">]</span>;
+
+<span class="synStatement">$</span><span class="synIdentifier">opt</span> <span class="synStatement">=</span> <span class="synSpecial">[</span>
+    CURLOPT_URL <span class="synStatement">=&gt;</span> <span class="synConstant">'http://localhost:8888/server.php'</span>,
+    CURLOPT_CUSTOMREQUEST <span class="synStatement">=&gt;</span> <span class="synConstant">'PUT'</span>,
+    CURLOPT_POSTFIELDS <span class="synStatement">=&gt;</span> <span class="synIdentifier">http_build_query</span><span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">params</span><span class="synSpecial">)</span>,
+    CURLOPT_RETURNTRANSFER <span class="synStatement">=&gt;</span> <span class="synConstant">true</span>,
+<span class="synSpecial">]</span>;
+
+<span class="synStatement">$</span><span class="synIdentifier">handle</span> <span class="synStatement">=</span> <span class="synIdentifier">curl_init</span><span class="synSpecial">()</span>;
+curl_setopt_array<span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">handle</span>, <span class="synStatement">$</span><span class="synIdentifier">opt</span><span class="synSpecial">)</span>;
+<span class="synStatement">$</span><span class="synIdentifier">apiResponse</span> <span class="synStatement">=</span> <span class="synIdentifier">json_decode</span><span class="synSpecial">(</span><span class="synIdentifier">curl_exec</span><span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">handle</span><span class="synSpecial">)</span>, <span class="synConstant">true</span><span class="synSpecial">)</span>;
+<span class="synIdentifier">curl_close</span><span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">handle</span><span class="synSpecial">)</span>;
+
+<span class="synPreProc">echo</span> <span class="synConstant">&quot;サーバからの応答:</span><span class="synSpecial">\n</span><span class="synConstant">&quot;</span>;
+<span class="synIdentifier">print_r</span><span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">apiResponse</span><span class="synSpecial">)</span>;
+</pre>
+
+
+<p>実行結果</p>
+
+<pre class="code" data-lang="" data-unlink>サーバからの応答:
+Array
+(
+    [status] =&gt; success
+    [message] =&gt; ユーザ: konaの好きな食べ物を、 抹茶アイスに変更しました。
+)</pre>
+
+
+<h4>DELETE</h4>
+
+<pre class="code lang-php" data-lang="php" data-unlink><span class="synSpecial">&lt;?php</span>
+<span class="synStatement">declare</span><span class="synSpecial">(</span>strict_types<span class="synStatement">=</span><span class="synConstant">1</span><span class="synSpecial">)</span>;
+
+<span class="synStatement">$</span><span class="synIdentifier">params</span> <span class="synStatement">=</span> <span class="synSpecial">[</span>
+    <span class="synConstant">'userId'</span> <span class="synStatement">=&gt;</span> <span class="synConstant">1001</span>,
+    <span class="synConstant">'userName'</span> <span class="synStatement">=&gt;</span> <span class="synConstant">&quot;kona&quot;</span>,
+    <span class="synConstant">'food'</span> <span class="synStatement">=&gt;</span> <span class="synConstant">'抹茶アイス'</span>,
+<span class="synSpecial">]</span>;
+
+<span class="synStatement">$</span><span class="synIdentifier">opt</span> <span class="synStatement">=</span> <span class="synSpecial">[</span>
+    CURLOPT_URL <span class="synStatement">=&gt;</span> <span class="synConstant">'http://localhost:8888/server.php'</span>,
+    CURLOPT_CUSTOMREQUEST <span class="synStatement">=&gt;</span> <span class="synConstant">'DELETE'</span>,
+    CURLOPT_POSTFIELDS <span class="synStatement">=&gt;</span> <span class="synIdentifier">http_build_query</span><span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">params</span><span class="synSpecial">)</span>,
+    CURLOPT_RETURNTRANSFER <span class="synStatement">=&gt;</span> <span class="synConstant">true</span>,
+<span class="synSpecial">]</span>;
+
+<span class="synStatement">$</span><span class="synIdentifier">handle</span> <span class="synStatement">=</span> <span class="synIdentifier">curl_init</span><span class="synSpecial">()</span>;
+curl_setopt_array<span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">handle</span>, <span class="synStatement">$</span><span class="synIdentifier">opt</span><span class="synSpecial">)</span>;
+<span class="synStatement">$</span><span class="synIdentifier">apiResponse</span> <span class="synStatement">=</span> <span class="synIdentifier">json_decode</span><span class="synSpecial">(</span><span class="synIdentifier">curl_exec</span><span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">handle</span><span class="synSpecial">)</span>, <span class="synConstant">true</span><span class="synSpecial">)</span>;
+<span class="synIdentifier">curl_close</span><span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">handle</span><span class="synSpecial">)</span>;
+
+<span class="synPreProc">echo</span> <span class="synConstant">&quot;サーバからの応答: </span><span class="synSpecial">\n</span><span class="synConstant">&quot;</span>;
+<span class="synIdentifier">print_r</span><span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">apiResponse</span><span class="synSpecial">)</span>;
+</pre>
+
+
+<p>実行結果</p>
+
+<pre class="code" data-lang="" data-unlink>サーバからの応答: 
+Array
+(
+    [status] =&gt; success
+    [message] =&gt; ユーザ: konaの好きな食べ物、抹茶アイスを削除しました。
+)</pre>
+
+
+<h1>参考書籍</h1>
+
+<p><div class="hatena-asin-detail"><a href="https://www.amazon.co.jp/exec/obidos/ASIN/4297114704/hatena-blog-22/"><img src="https://m.media-amazon.com/images/I/41vb-rC5lOL.jpg" class="hatena-asin-detail-image" alt="PHP本格入門[下] ~オブジェクト指向設計、セキュリティ、現場で使える実践ノウハウまで" title="PHP本格入門[下] ~オブジェクト指向設計、セキュリティ、現場で使える実践ノウハウまで"></a><div class="hatena-asin-detail-info"><p class="hatena-asin-detail-title"><a href="https://www.amazon.co.jp/exec/obidos/ASIN/4297114704/hatena-blog-22/">PHP本格入門[下] ~オブジェクト指向設計、セキュリティ、現場で使える実践ノウハウまで</a></p><ul><li><span class="hatena-asin-detail-label">作者:</span><a href="http://d.hatena.ne.jp/keyword/%C2%E7%B2%C8%20%C0%B5%C5%D0" class="keyword">大家 正登</a></li><li><span class="hatena-asin-detail-label">発売日:</span> 2020/08/03</li><li><span class="hatena-asin-detail-label">メディア:</span> 単行本（ソフトカバー）</li></ul></div><div class="hatena-asin-detail-foot"></div></div></p>
+
+-----
+--------
+AUTHOR: konakomoti
+TITLE: merpay Tech Talk ~伝わる技術文書の書き方~　12/1/2020配信メモ
+BASENAME: 2020/12/13/190140
+STATUS: Publish
+ALLOW COMMENTS: 1
+CONVERT BREAKS: 0
+DATE: 12/13/2020 19:01:40
+-----
+BODY:
+<h1>言葉の揺れをなくす</h1>
+
+<p>たとえば or 例えば
+一つ or １つ</p>
+
+<h1>正確性と分かりやすさの関係</h1>
+
+<ul>
+<li>先に重要なことを伝える</li>
+<li><p>理解の手助け</p>
+
+<ul>
+<li>図や画像の使用</li>
+</ul>
+</li>
+<li><p>主語を省かない</p>
+
+<ul>
+<li>読者は見出しをよく見ていなかったりする。</li>
+</ul>
+</li>
+<li>主語と述語の距離を短く
+
+<ul>
+<li>60~100文字に抑える</li>
+</ul>
+</li>
+<li>受動態を避ける
+
+<ul>
+<li>「される」などを避ける。</li>
+</ul>
+</li>
+<li>複数の意味を持つ動詞を避ける</li>
+</ul>
+
+
+<h1>その他</h1>
+
+<p>括弧は半角()ではなく全角（）を使用する。（ベースラインが整う。）　</p>
+
+-----
+--------
+AUTHOR: konakomoti
+TITLE: 【PHP】正規表現メモ
+BASENAME: 2020/12/09/110055
+STATUS: Publish
+ALLOW COMMENTS: 1
+CONVERT BREAKS: 0
+DATE: 12/09/2020 11:00:55
+CATEGORY: PHP
+CATEGORY: IT
+-----
+BODY:
+<p><b>目的: <a class="keyword" href="http://d.hatena.ne.jp/keyword/CSS">CSS</a>プロパティで指定された画像URLを取り出したい</b>
+<code>background-image: url( https://xxxxx.png );</code></p>
+
+<pre class="code lang-php" data-lang="php" data-unlink><span class="synSpecial">&lt;?php</span>
+<span class="synPreProc">function</span> cutOutUrl<span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">url</span><span class="synSpecial">)</span>
+<span class="synSpecial">{</span>
+  <span class="synIdentifier">preg_match</span><span class="synSpecial">(</span><span class="synConstant">'/(https).*\.(png|jpg|jpeg)/i'</span>, <span class="synStatement">$</span><span class="synIdentifier">url</span>, <span class="synStatement">$</span><span class="synIdentifier">match</span><span class="synSpecial">)</span>;
+  <span class="synStatement">return</span> <span class="synStatement">$</span><span class="synIdentifier">match</span><span class="synSpecial">[</span><span class="synConstant">0</span><span class="synSpecial">]</span> <span class="synStatement">??</span> <span class="synType">null</span>;
+<span class="synSpecial">}</span>
+
+<span class="synStatement">$</span><span class="synIdentifier">url</span> <span class="synStatement">=</span> cutOutUrl<span class="synSpecial">(</span><span class="synConstant">&quot;background-image: url( https://xxxxx.png );&quot;</span><span class="synSpecial">)</span>;
+<span class="synPreProc">echo</span> <span class="synStatement">$</span><span class="synIdentifier">url</span>;
+</pre>
+
+
+
+
+<pre class="code" data-lang="" data-unlink>$ php index.php 
+&#34;https://xxxxx.png&#34;</pre>
+
+
+-----
+--------
+AUTHOR: konakomoti
+TITLE: Rust環境構築メモ
+BASENAME: 2020/12/04/101225
+STATUS: Publish
+ALLOW COMMENTS: 1
+CONVERT BREAKS: 0
+DATE: 12/04/2020 10:12:25
+CATEGORY: IT
+CATEGORY: Rust
+IMAGE: https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201204/20201204100931.png
+-----
+BODY:
+<p>Rustの環境構築をする際に、<a class="keyword" href="http://d.hatena.ne.jp/keyword/VSCode">VSCode</a>の<a class="keyword" href="http://d.hatena.ne.jp/keyword/%B3%C8%C4%A5%B5%A1%C7%BD">拡張機能</a>である<strong>Remote - Containers</strong>を使用しました。
+<span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201204/20201204100931.png" alt="f:id:konakomoti:20201204100931p:plain" title="" class="hatena-fotolife" itemprop="image"></span></p>
+
+<p>ローカル上にフォルダを作成し、</p>
+
+<pre class="code" data-lang="" data-unlink>mkdir ~/RustApp</pre>
+
+
+<p>これ以降<a class="keyword" href="http://d.hatena.ne.jp/keyword/VSCode">VSCode</a>上で作業をします。</p>
+
+<p>コマンドパレットから <strong>Remote-Container: Open Folder in Container...</strong> を選択し、<strong>Rust</strong>を選択します。
+<span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201204/20201204100939.png" alt="f:id:konakomoti:20201204100939p:plain" title="" class="hatena-fotolife" itemprop="image"></span></p>
+
+<p>Docker ImageのBuildの終了後、Terminalで確認。
+<span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201204/20201204100944.png" alt="f:id:konakomoti:20201204100944p:plain" title="" class="hatena-fotolife" itemprop="image"></span></p>
+
+<p>以上でRustの環境構築が終了しました。</p>
+
+<h4>終了時</h4>
+
+<p><a class="keyword" href="http://d.hatena.ne.jp/keyword/VSCode">VSCode</a>左下にある<strong>Dev Container: Rust</strong>から、リモート接続を終了する。
+<span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201204/20201204103038.png" alt="f:id:konakomoti:20201204103038p:plain" title="" class="hatena-fotolife" itemprop="image"></span></p>
+
+<p><span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201204/20201204103041.png" alt="f:id:konakomoti:20201204103041p:plain" title="" class="hatena-fotolife" itemprop="image"></span></p>
+
+<h4>参考:</h4>
+
+<p><a href="https://note.com/junkawashima/n/n22a29d812041">Rust開発環境をVS Codeで簡単に構築する</a></p>
+
+-----
+--------
+AUTHOR: konakomoti
+TITLE: Linuxコマンド備忘録
+BASENAME: 2020/11/26/111155
+STATUS: Draft
+ALLOW COMMENTS: 1
+CONVERT BREAKS: 0
+DATE: 11/26/2020 11:11:55
+-----
+BODY:
+<p>sortコマンド
+<code>sort -k 3 -n "file名"</code>
+-k n 何列目かを指定。<br />
+-n 数値として指定。ない場合、9800 -> 9と判定されてしまう。</p>
+
+<p>参考: <a class="keyword" href="http://d.hatena.ne.jp/keyword/Linux">Linux</a>標準教科書</p>
+
+-----
+--------
+AUTHOR: konakomoti
+TITLE: ウェブアプリケーションの脆弱性について
+BASENAME: 2020/11/25/233326
+STATUS: Draft
+ALLOW COMMENTS: 1
+CONVERT BREAKS: 0
+DATE: 11/25/2020 23:33:26
+CATEGORY: IT
+-----
+BODY:
+<p>参考記事:</p>
+
+<p><a href="https://qiita.com/wanko5296/items/142b5b82485b0196a2da">3&#x5206;&#x3067;&#x308F;&#x304B;&#x308B;XSS&#x3068;CSRF&#x306E;&#x9055;&#x3044; - Qiita</a></p>
+
+-----
+--------
+AUTHOR: konakomoti
+TITLE: PHPでLINE Messaging APIを使う
+BASENAME: 2020/11/18/004646
+STATUS: Publish
+ALLOW COMMENTS: 1
+CONVERT BREAKS: 0
+DATE: 11/18/2020 00:46:46
+CATEGORY: IT
+CATEGORY: PHP
+IMAGE: https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201118/20201118001505.jpg
+-----
+BODY:
+<p>この記事は、<br />
+<b>LINE Developersコンソールでチャネルを作成済み。</b><br />
+<b><a class="keyword" href="http://d.hatena.ne.jp/keyword/GitHub">GitHub</a>で<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%EA%A5%DD%A5%B8%A5%C8%A5%EA">リポジトリ</a>を作成済み。</b><br />
+<b>herokuにアカウントを作成済み。</b><br />
+であることが前提です。LINE Developersのチャネルは<a href="https://developers.line.biz/ja/docs/messaging-api/getting-started/">ここから</a>すぐに作成できます！<br />
+<a class="keyword" href="http://d.hatena.ne.jp/keyword/GitHub">GitHub</a>は<b>linebot</b>という名前で<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%EA%A5%DD%A5%B8%A5%C8%A5%EA">リポジトリ</a>を作成しました。</p>
+
+<ul class="table-of-contents">
+    <li><a href="#環境">環境</a></li>
+    <li><a href="#herokuでアプリを作成しGitHubと連携する">herokuでアプリを作成し、GitHubと連携する</a></li>
+    <li><a href="#LINE-Messaging-API-SDKをインストールする">LINE Messaging API SDKをインストールする</a><ul>
+            <li><a href="#PHPファイルを作成しLINE-Messaging-API-SDKをインストールする">PHPファイルを作成し、LINE Messaging API SDKをインストールする</a></li>
+        </ul>
+    </li>
+    <li><a href="#Webhook-URLを設定する">Webhook URLを設定する</a></li>
+    <li><a href="#botを友だちに追加">botを友だちに追加</a></li>
+    <li><a href="#メッセージをオウム返しする">メッセージをオウム返しする</a></li>
+    <li><a href="#終わり">終わり</a></li>
+</ul>
+
+<h3 id="環境">環境</h3>
+
+<p><a class="keyword" href="http://d.hatena.ne.jp/keyword/macOS">macOS</a> Catalina バージョン 10.15.7<br />
+<a class="keyword" href="http://d.hatena.ne.jp/keyword/PHP">PHP</a> 7.3.11<br />
+Composer 2.0.7</p>
+
+<h3 id="herokuでアプリを作成しGitHubと連携する">herokuでアプリを作成し、<a class="keyword" href="http://d.hatena.ne.jp/keyword/GitHub">GitHub</a>と連携する</h3>
+
+<p><b>linebot-echoapp</b>という名前でアプリを作成しました。
+<figure class="figure-image figure-image-fotolife" title="herokuでアプリを新規作成"><span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201117/20201117231004.png" alt="f:id:konakomoti:20201117231004p:plain" title="" class="hatena-fotolife" itemprop="image"></span><figcaption>herokuでアプリを新規作成</figcaption></figure>
+<figure class="figure-image figure-image-fotolife" title="GitHubと連携"><span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201117/20201117231550.png" alt="f:id:konakomoti:20201117231550p:plain" title="" class="hatena-fotolife" itemprop="image"></span><figcaption><a class="keyword" href="http://d.hatena.ne.jp/keyword/GitHub">GitHub</a>と連携</figcaption></figure><figure class="figure-image figure-image-fotolife" title="自動デプロイを有効にする"><span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201117/20201117231706.png" alt="f:id:konakomoti:20201117231706p:plain" title="" class="hatena-fotolife" itemprop="image"></span><figcaption>自動デプロイを有効にする</figcaption></figure></p>
+
+<h3 id="LINE-Messaging-API-SDKをインストールする">LINE Messaging <a class="keyword" href="http://d.hatena.ne.jp/keyword/API">API</a> <a class="keyword" href="http://d.hatena.ne.jp/keyword/SDK">SDK</a>をインストールする</h3>
+
+<h6 id="PHPファイルを作成しLINE-Messaging-API-SDKをインストールする"><a class="keyword" href="http://d.hatena.ne.jp/keyword/PHP">PHP</a>ファイルを作成し、LINE Messaging <a class="keyword" href="http://d.hatena.ne.jp/keyword/API">API</a> <a class="keyword" href="http://d.hatena.ne.jp/keyword/SDK">SDK</a>をインストールする</h6>
+
+<p><code>$touch index.php</code><br />
+<code>$composer require linecorp/line-bot-sdk</code><br />
+とりあえず<a class="keyword" href="http://d.hatena.ne.jp/keyword/PHP">PHP</a>ファイルを編集しておきます。</p>
+
+<pre class="code lang-php" data-lang="php" data-unlink><span class="synSpecial">&lt;?php</span>
+<span class="synPreProc">echo</span> <span class="synConstant">&quot;hello&quot;</span>;
+</pre>
+
+
+<p><a class="keyword" href="http://d.hatena.ne.jp/keyword/GitHub">GitHub</a>へpush。<br />
+<code>git add .</code><br />
+<code>git commit -m "first commit"</code><br />
+<code>git push origin main</code></p>
+
+<p>ここまで終了したら、ページを開いて先程作った<a class="keyword" href="http://d.hatena.ne.jp/keyword/PHP">PHP</a>ファイルが反映されているか確認します。<br />
+herokuページ上部の<b>Open app</b>をクリックするとページが開きます。
+<figure class="figure-image figure-image-fotolife" title="ページを確認"><span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201117/20201117231922.png" alt="f:id:konakomoti:20201117231922p:plain" title="" class="hatena-fotolife" itemprop="image"></span><figcaption>ページを確認</figcaption></figure>
+<span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201117/20201117232115.png" alt="f:id:konakomoti:20201117232115p:plain" title="" class="hatena-fotolife" itemprop="image"></span>
+helloと表示されていたら<a class="keyword" href="http://d.hatena.ne.jp/keyword/GitHub">GitHub</a>との連携ができています！<br />
+このページのURLをメモしておいてください。
+<figure class="figure-image figure-image-fotolife" title="URL"><span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201117/20201117232831.png" alt="f:id:konakomoti:20201117232831p:plain" title="" class="hatena-fotolife" itemprop="image"></span><figcaption>URL</figcaption></figure></p>
+
+<h3 id="Webhook-URLを設定する">Webhook URLを設定する</h3>
+
+<p>LINE Developersで作成したチャネル内で、
+<figure class="figure-image figure-image-fotolife" title="Webhook URLを設定する"><span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201118/20201118002735.png" alt="f:id:konakomoti:20201118002735p:plain" title="" class="hatena-fotolife" itemprop="image"></span><figcaption>Webhook URLを設定する</figcaption></figure>
+<b>Webhook URL</b>に先程のURLを入力し、<b>Use webhook</b>をonにします。<br />
+同じページ内にある<b>Channel access token</b>を発行します。<br />
+<figure class="figure-image figure-image-fotolife" title="Channel access token"><span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201117/20201117233802.png" alt="f:id:konakomoti:20201117233802p:plain" title="" class="hatena-fotolife" itemprop="image"></span><figcaption>Channel access token</figcaption></figure>
+次に、<b>Basic settingsタブ</b>の<b>Channel secret</b>を確認します。
+<figure class="figure-image figure-image-fotolife" title="Channel secret"><span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201117/20201117233933.png" alt="f:id:konakomoti:20201117233933p:plain" title="" class="hatena-fotolife" itemprop="image"></span><figcaption>Channel secret</figcaption></figure>
+上記の<br />
+<b>Channel access token</b>と<br />
+<b>Channel secret</b><br />
+を<a class="keyword" href="http://d.hatena.ne.jp/keyword/PHP">PHP</a>ファイル内で使用します。</p>
+
+<h3 id="botを友だちに追加"><a class="keyword" href="http://d.hatena.ne.jp/keyword/bot">bot</a>を友だちに追加</h3>
+
+<p><b>Messaging <a class="keyword" href="http://d.hatena.ne.jp/keyword/API">API</a>タブ</b>にある<a class="keyword" href="http://d.hatena.ne.jp/keyword/QR%A5%B3%A1%BC%A5%C9">QRコード</a>から友だち追加しておきます。</p>
+
+<h3 id="メッセージをオウム返しする">メッセージをオウム返しする</h3>
+
+<p>送信したメッセージをオウム返しするコードを<a href="https://github.com/line/line-bot-sdk-php">LINE Messaging API SDK</a>や<a href="https://qiita.com/kuzira_vimmer/items/ad485a9365c2c23f0465">Qiita</a>の記事を参考に作成しました。</p>
+
+<pre class="code lang-php" data-lang="php" data-unlink><span class="synSpecial">&lt;?php</span>
+<span class="synPreProc">require</span><span class="synSpecial">(</span><span class="synConstant">'vendor/autoload.php'</span><span class="synSpecial">)</span>;
+
+<span class="synPreProc">use</span> LINE\LINEBot\<span class="synIdentifier">Constant</span>\HTTPHeader;
+<span class="synPreProc">use</span> LINE\LINEBot\HTTPClient\CurlHTTPClient;
+<span class="synPreProc">use</span> LINE\LINEBot;
+
+<span class="synComment">// Channel access tokenとChannel secretを設定</span>
+<span class="synStatement">$</span><span class="synIdentifier">channel_access_token</span> <span class="synStatement">=</span> <span class="synConstant">'XXXXXXXXX'</span>;
+<span class="synStatement">$</span><span class="synIdentifier">channel_secret</span> <span class="synStatement">=</span> <span class="synConstant">'XXXXXXXXX'</span>;
+
+<span class="synStatement">$</span><span class="synIdentifier">httpClient</span> <span class="synStatement">=</span> <span class="synPreProc">new</span> CurlHTTPClient<span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">channel_access_token</span><span class="synSpecial">)</span>;
+<span class="synStatement">$</span><span class="synIdentifier">bot</span> <span class="synStatement">=</span> <span class="synPreProc">new</span> LINEBot<span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">httpClient</span>, <span class="synSpecial">[</span><span class="synConstant">'channelSecret'</span> <span class="synStatement">=&gt;</span> <span class="synStatement">$</span><span class="synIdentifier">channel_secret</span><span class="synSpecial">])</span>;
+
+<span class="synStatement">$</span><span class="synIdentifier">events</span> <span class="synStatement">=</span> <span class="synStatement">$</span><span class="synIdentifier">bot</span><span class="synType">-&gt;</span>parseEventRequest<span class="synSpecial">(</span><span class="synIdentifier">file_get_contents</span><span class="synSpecial">(</span><span class="synConstant">'php://input'</span><span class="synSpecial">)</span>, <span class="synStatement">$</span><span class="synIdentifier">_SERVER</span><span class="synSpecial">[</span><span class="synConstant">'HTTP_'</span> <span class="synStatement">.</span> HTTPHeader<span class="synStatement">::</span>LINE_SIGNATURE<span class="synSpecial">])</span>;
+<span class="synStatement">$</span><span class="synIdentifier">event</span> <span class="synStatement">=</span> <span class="synStatement">$</span><span class="synIdentifier">events</span><span class="synSpecial">[</span><span class="synConstant">0</span><span class="synSpecial">]</span>;
+
+<span class="synStatement">$</span><span class="synIdentifier">bot</span><span class="synType">-&gt;</span>replyText<span class="synSpecial">(</span><span class="synStatement">$</span><span class="synIdentifier">event</span><span class="synType">-&gt;</span>getReplyToken<span class="synSpecial">()</span>, <span class="synStatement">$</span><span class="synIdentifier">event</span><span class="synType">-&gt;</span>getText<span class="synSpecial">())</span>;
+</pre>
+
+
+<p><a class="keyword" href="http://d.hatena.ne.jp/keyword/GitHub">GitHub</a>へpushし、少ししてからLINEで確認してみてください。
+<span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201118/20201118001505.jpg" alt="f:id:konakomoti:20201118001505j:plain" title="" class="hatena-fotolife" itemprop="image"></span></p>
+
+<p><a href="https://developers.line.biz/ja/docs/messaging-api/building-sample-bot-with-heroku/#page-title">公式ドキュメント</a>で他様々なことが確認できます！</p>
+
+<h3 id="終わり">終わり</h3>
+
+<p>日本語のドキュメントがあるのにも関わらずとても苦労しました。。。<br />
+<a class="keyword" href="http://d.hatena.ne.jp/keyword/API">API</a>の知識も身につけていきたいです。</p>
+
+-----
+--------
+AUTHOR: konakomoti
+TITLE: なぜWWWが誕生したか
+BASENAME: 2020/11/15/102143
+STATUS: Publish
+ALLOW COMMENTS: 1
+CONVERT BREAKS: 0
+DATE: 11/15/2020 10:21:43
+CATEGORY: IT
+IMAGE: https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201115/20201115101055.jpg
+-----
+BODY:
+<ul class="table-of-contents">
+    <li><a href="#WWWとMCSA-Mosaicの登場">WWWとMCSA Mosaicの登場</a><ul>
+            <li><a href="#wwwが誕生">wwwが誕生</a></li>
+            <li><a href="#ブラウザの祖先NSCA-Mosaic">ブラウザの祖先、NSCA Mosaic</a></li>
+        </ul>
+    </li>
+    <li><a href="#今でも使用されるWebシステムの基礎">今でも使用されるWebシステムの基礎</a></li>
+    <li><a href="#ページの住所">ページの住所</a><ul>
+            <li><a href="#--スキーム">① : スキーム</a></li>
+            <li><a href="#--ホスト名">② : ホスト名</a></li>
+            <li><a href="#--パス名">③ : パス名</a></li>
+        </ul>
+    </li>
+    <li><a href="#HTTPの登場">HTTPの登場</a></li>
+</ul>
+
+<h2 id="WWWとMCSA-Mosaicの登場">WWWとMCSA <a class="keyword" href="http://d.hatena.ne.jp/keyword/Mosaic">Mosaic</a>の登場</h2>
+
+<h4 id="wwwが誕生">wwwが誕生</h4>
+
+<p>1989年、<a class="keyword" href="http://d.hatena.ne.jp/keyword/%C1%C7%CE%B3%BB%D2%CA%AA%CD%FD%B3%D8">素粒子物理学</a>の研究所から考案された。<br />
+当時、「実験の結果などを世界の研究者と共有したい！」という話になったが、これまであった電子メールなどのやりとりは不便だった。<br />
+そんな中、欧州<a class="keyword" href="http://d.hatena.ne.jp/keyword/%B8%B6%BB%D2%B3%CB">原子核</a>研究機構(<b><a class="keyword" href="http://d.hatena.ne.jp/keyword/CERN">CERN</a></b>)に所属していたティム・バーナーズ ＝ リー博士が<b>www</b>を提案、開発した。<br />
+wwwは、<b>HTML</b>という形式でデータを表現することにした。HTMLは<b>Hyper Text</b>という仕組みが画期的で、参照先の文書を瞬時に閲覧することが可能だった。これを表現しているのが、<b>Hyper Link</b>という形式の記述方法。<br />
+研究文書の中で参照されている文書をすぐに閲覧でき、その先の文書でも参照先を閲覧することができる。さらにその先の...と、
+インターネット上での<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%CF%A5%A4%A5%D1%A1%BC%A5%EA%A5%F3%A5%AF">ハイパーリンク</a>の繋がりが蜘蛛の巣のように見えることから、World-Wide Web(世界に広がる蜘蛛の巣)と名付けられた。
+<span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201115/20201115101055.jpg" alt="f:id:konakomoti:20201115101055j:plain" title="f:id:konakomoti:20201115101055j:plain" class="hatena-fotolife" itemprop="image"></span></p>
+
+<h4 id="ブラウザの祖先NSCA-Mosaic">ブラウザの祖先、NSCA <a class="keyword" href="http://d.hatena.ne.jp/keyword/Mosaic">Mosaic</a></h4>
+
+<p>www登場当初は、テキストのみの簡素なページであり、画像などは別のページで表示されていた。
+現在のWebページのようにテキストと画像が混在できるようにしたのが、<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%A4%A5%EA%A5%CE%A5%A4%B9%A9%B2%CA%C2%E7%B3%D8">イリノイ工科大学</a>のマーク・アンドリーセンらによって開発されたNSCA <a class="keyword" href="http://d.hatena.ne.jp/keyword/Mosaic">Mosaic</a>という<a class="keyword" href="http://d.hatena.ne.jp/keyword/Web%A5%D6%A5%E9%A5%A6%A5%B6">Webブラウザ</a>だった。<br />
+<a class="keyword" href="http://d.hatena.ne.jp/keyword/Mosaic">Mosaic</a>は無料で利用が可能であったため、研究の情報共有だけでなく、様々な人が使い始めた。</p>
+
+<h2 id="今でも使用されるWebシステムの基礎">今でも使用されるWebシステムの基礎</h2>
+
+<p>wwwによる<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%CF%A5%A4%A5%D1%A1%BC%A5%C6%A5%AD%A5%B9%A5%C8">ハイパーテキスト</a>の閲覧は、Webサーバ<small>(<a class="keyword" href="http://d.hatena.ne.jp/keyword/Apache">Apache</a> HTTP Serverとか)</small>とWebクライアント<small>(<a class="keyword" href="http://d.hatena.ne.jp/keyword/Chrome">Chrome</a>などのブラウザ)</small>というソフトウェアで実装されている。<br />
+不特定多数の人に公開される情報(コンテンツ)は一つの場所(Webサーバ)で管理するほうが楽なので、サーバとクライアントに分けている。</p>
+
+<h2 id="ページの住所">ページの住所</h2>
+
+<p>見たいページがどこに存在するか？それを一意に特定するための仕組みを<b>URL</b>(Uniform Resource Locator)という。
+<span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201115/20201115101059.jpg" alt="f:id:konakomoti:20201115101059j:plain" title="f:id:konakomoti:20201115101059j:plain" class="hatena-fotolife" itemprop="image"></span></p>
+
+<h6 id="--スキーム">① : スキーム</h6>
+
+<p>どの方法でリソースを取得するかを表す。</p>
+
+<h6 id="--ホスト名">② : ホスト名</h6>
+
+<p>リソースが存在するホスト(コンピュータ)名を表す。
+ホスト名はさらに分解することができる。
+<span itemscope itemtype="http://schema.org/Photograph"><img src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20201115/20201115101102.jpg" alt="f:id:konakomoti:20201115101102j:plain" title="f:id:konakomoti:20201115101102j:plain" class="hatena-fotolife" itemprop="image"></span></p>
+
+<h6 id="--パス名">③ : パス名</h6>
+
+<p>さらに、ホストコンピュータ内のどこにあるかを示している。<br />
+pagesという<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%C7%A5%A3%A5%EC%A5%AF%A5%C8">ディレクト</a>リ(フォルダ)の中の、index.htmlが求めているページ。</p>
+
+<h3 id="HTTPの登場">HTTPの登場</h3>
+
+<p>URLの利用によりコンテンツがインターネット上のどこに存在するかは示すことができた。　が、それらコンテンツ(<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%CF%A5%A4%A5%D1%A1%BC%A5%C6%A5%AD%A5%B9%A5%C8">ハイパーテキスト</a>)を異なるコンピュータ間でどのように送受信するか、という問題があった。<br />
+バーナーズ ＝ リー博士は、すでに存在していた<b><a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%D7%A5%ED%A5%C8%A5%B3%A5%EB">プロトコル</a></b>(<a class="keyword" href="http://d.hatena.ne.jp/keyword/FTP">FTP</a>,<a class="keyword" href="http://d.hatena.ne.jp/keyword/SMTP">SMTP</a>)を参考に、<b>HTTP</b>(Hyper Text Transfer Protocol)を考案した。<br />
+「<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%D7%A5%ED%A5%C8%A5%B3%A5%EB">プロトコル</a>」とは「取り決め」のことで、日本人が「日本語を使って情報を交換しよう！」というふうに会話しているように、WebサーバとWebクライアントでは、「HTTPを使って<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%CF%A5%A4%A5%D1%A1%BC%A5%C6%A5%AD%A5%B9%A5%C8">ハイパーテキスト</a>を送受信しよう！」という取り決めを作った。</p>
+
+<p>参考書籍:
+<div class="hatena-asin-detail"><a href="https://www.amazon.co.jp/exec/obidos/ASIN/4774142352/hatena-blog-22/"><img src="https://m.media-amazon.com/images/I/61YVe2oD4CL.jpg" class="hatena-asin-detail-image" alt="「プロになるためのWeb技術入門」 ――なぜ、あなたはWebシステムを開発できないのか" title="「プロになるためのWeb技術入門」 ――なぜ、あなたはWebシステムを開発できないのか"></a><div class="hatena-asin-detail-info"><p class="hatena-asin-detail-title"><a href="https://www.amazon.co.jp/exec/obidos/ASIN/4774142352/hatena-blog-22/">「プロになるためのWeb技術入門」 ――なぜ、あなたはWebシステムを開発できないのか</a></p><ul><li><span class="hatena-asin-detail-label">作者:</span><a href="http://d.hatena.ne.jp/keyword/%BE%AE%BF%B9%20%CD%B5%B2%F0" class="keyword">小森 裕介</a></li><li><span class="hatena-asin-detail-label">発売日:</span> 2010/04/10</li><li><span class="hatena-asin-detail-label">メディア:</span> 大型本</li></ul></div><div class="hatena-asin-detail-foot"></div></div></p>
+
+-----
+--------
+AUTHOR: konakomoti
+TITLE: 自分用読書方法のまなび
+BASENAME: 2020/05/28/105348
+STATUS: Publish
+ALLOW COMMENTS: 1
+CONVERT BREAKS: 0
+DATE: 05/28/2020 10:53:48
+-----
+BODY:
+<iframe width="560" height="315" frameborder="0" allowfullscreen="" src="//www.youtube.com/embed/RJa4HoOIsc0"></iframe>
+
+
+<p><br><a href="https://youtube.com/watch?v=RJa4HoOIsc0">「ただの読書」は時間の無駄。100人に1人の人材になる読書法。</a></p>
+
+<ul class="table-of-contents">
+    <li><a href="#つまらなかったら読むのをやめる">つまらなかったら読むのをやめる</a></li>
+    <li><a href="#読んだその日から行動をする">読んだその日から行動をする</a><ul>
+            <li><a href="#目的を持って読み始める">目的を持って読み始める</a></li>
+        </ul>
+    </li>
+    <li><a href="#YouTubeで本の要約動画を見る">YouTubeで本の要約動画を見る</a></li>
+</ul>
+
+<h3 id="つまらなかったら読むのをやめる">つまらなかったら読むのをやめる</h3>
+
+<p>買ったからにはすべて読まねば、という気持ちがこれまであった。しかし読んでいてつまらない・読む気にならない本は、読んでいる時も読んだ後も記憶に残らないことはよくある。いっそ読むのをやめてしまおうと決めた。</p>
+
+<h3 id="読んだその日から行動をする">読んだその日から行動をする</h3>
+
+<p>これが最も大事だと感じた。一つでもいいから行動に取り込むことでこれまで読んで終わっていた本に価値を付け加えることができる。</p>
+
+<h6 id="目的を持って読み始める">目的を持って読み始める</h6>
+
+<p>問題解決や悩んでいることがあれば、読み始めた後すぐに行動に移しやすいと思った。本を読む前に目的を持つことを意識したい。</p>
+
+<h3 id="YouTubeで本の要約動画を見る"><a class="keyword" href="http://d.hatena.ne.jp/keyword/YouTube">YouTube</a>で本の要約動画を見る</h3>
+
+<p>良い本に出合うために要約動画を見て、買うのを決めることはとても効率が良いなと思った。今では10分ほどで解説されている動画が数多くある。気になった本があったら、まず動画で調べてみる。</p>
+
+-----
+--------
+AUTHOR: konakomoti
+TITLE: AWSを学び始める
+BASENAME: 2020/05/26/111332
+STATUS: Publish
+ALLOW COMMENTS: 1
+CONVERT BREAKS: 0
+DATE: 05/26/2020 11:13:32
+CATEGORY: IT
+IMAGE: https://m.media-amazon.com/images/I/51Fl-rIvlFL._SL160_.jpg
+-----
+BODY:
+<h2><a class="keyword" href="http://d.hatena.ne.jp/keyword/AWS">AWS</a>を始めたい理由</h2>
+
+<ol>
+<li>来年就職する予定の内定先の企業が<a class="keyword" href="http://d.hatena.ne.jp/keyword/AWS">AWS</a>をインフラで使用している点</li>
+<li>個人で開発したアプリ等を<a class="keyword" href="http://d.hatena.ne.jp/keyword/AWS">AWS</a>を用いてデプロイしたい</li>
+<li>これまでは<a class="keyword" href="http://d.hatena.ne.jp/keyword/GitHub">GitHub</a> Pagesやherokuなどでしかページを公開したことがなかったので、一からシステムを構成することを学びたい</li>
+</ol>
+
+
+<p>以上の点から<a class="keyword" href="http://d.hatena.ne.jp/keyword/AWS">AWS</a>を学ぼうという気になりました。</p>
+
+<p><div class="hatena-asin-detail"><a href="https://www.amazon.co.jp/exec/obidos/ASIN/4296105442/hatena-blog-22/"><img src="https://m.media-amazon.com/images/I/51Fl-rIvlFL._SL160_.jpg" class="hatena-asin-detail-image" alt="Amazon Web Services 基礎からのネットワーク&amp;サーバー構築 改訂3版" title="Amazon Web Services 基礎からのネットワーク&amp;サーバー構築 改訂3版"></a><div class="hatena-asin-detail-info"><p class="hatena-asin-detail-title"><a href="https://www.amazon.co.jp/exec/obidos/ASIN/4296105442/hatena-blog-22/">Amazon Web Services 基礎からのネットワーク&amp;サーバー構築 改訂3版</a></p><ul><li><span class="hatena-asin-detail-label">作者:</span><a href="http://d.hatena.ne.jp/keyword/%C2%E7%DF%B7%20%CA%B8%B9%A7" class="keyword">大澤 文孝</a>,<a href="http://d.hatena.ne.jp/keyword/%B6%CC%C0%EE%20%B7%FB" class="keyword">玉川 憲</a>,<a href="http://d.hatena.ne.jp/keyword/%CA%D2%BB%B3%20%B6%C7%CD%BA" class="keyword">片山 暁雄</a>,<a href="http://d.hatena.ne.jp/keyword/%BA%A3%B0%E6%20%CD%BA%C2%C0" class="keyword">今井 雄太</a></li><li><span class="hatena-asin-detail-label">発売日:</span> 2020/02/06</li><li><span class="hatena-asin-detail-label">メディア:</span> 単行本</li></ul></div><div class="hatena-asin-detail-foot"></div></div>
+本屋で購入してきました！<br />
+今日から周りに追いついていきたい</p>
+
+-----
+--------
+AUTHOR: konakomoti
+TITLE: UNI&#39;S ON AIR（ユニゾンエアー ）欅坂46と日向坂46の音ゲーがかっこいい
+BASENAME: 2019/09/25/010040
+STATUS: Publish
+ALLOW COMMENTS: 1
+CONVERT BREAKS: 0
+DATE: 09/25/2019 01:00:40
+CATEGORY: 欅坂46
+CATEGORY: 日向坂46
+CATEGORY: 音ゲー
+IMAGE: https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20190924/20190924234829.png
+-----
+BODY:
+<p>9月24日、<a class="keyword" href="http://d.hatena.ne.jp/keyword/%DD%B0%BA%E446">欅坂46</a>と日向坂46の音楽アプリがリリースされた。</p>
+<p> </p>
+<p><img class="hatena-fotolife" title="f:id:konakomoti:20190924234829p:plain" src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20190924/20190924234829.png" alt="f:id:konakomoti:20190924234829p:plain" /></p>
+<p><iframe class="embed-card embed-webcard" style="display: block; width: 100%; height: 155px; max-width: 500px; margin: 10px 0px;" title="UNI'S ON AIR（ユニゾンエアー ）｜欅坂46・日向坂46 応援 [公式] 音楽アプリ" src="https://hatenablog-parts.com/embed?url=https%3A%2F%2Fkeyahina-unisonair.com%2F" frameborder="0" scrolling="no"></iframe><cite class="hatena-citation"><a href="https://keyahina-unisonair.com/">keyahina-unisonair.com</a></cite></p>
+<p>さっそくダウンロードし、少し遊んでみた。とにかくかっこいい。</p>
+<p> </p>
+<ul class="table-of-contents">
+    <li><a href="#映像写真が綺麗"> 映像、写真が綺麗</a></li>
+    <li><a href="#楽曲メンバーを知れる">楽曲、メンバーを知れる</a></li>
+    <li><a href="#ゲームだけのオリジナルのドラマムービーがある">ゲームだけのオリジナルのドラマ、ムービーがある</a></li>
+    <li><a href="#難易度"> 難易度</a></li>
+</ul>
+<p> </p>
+<h4 id="映像写真が綺麗"> <span style="font-size: 150%;">映像、写真が綺麗</span></h4>
+<p>　ゲームプレイ中、後ろにライブ映像が流れる。それが綺麗で、ファンたちのコールが楽しくて、プレイに集中できない笑。</p>
+<p>このゲームでしか見られない映像も多くあり、それだけで楽しめる。</p>
+<p><span style="font-size: 80%;"><strong>ライブ行ったことないから行ってみたくなる</strong></span></p>
+<figure class="figure-image figure-image-fotolife mceNonEditable" title="曲選択画面からもうかっこいい">
+<p><img class="hatena-fotolife" title="f:id:konakomoti:20190924233846p:plain" src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20190924/20190924233846.png" alt="f:id:konakomoti:20190924233846p:plain" /></p>
+<figcaption>曲選択画面からもうかっこいい</figcaption>
+</figure>
+<p>そしてメンバーが動く！</p>
+<p>メンバー編成やレベル強化等ができる画面で、所持しているメンバーが順に表示されるが、映像がついている！</p>
+<p><iframe src="//www.youtube.com/embed/lPRHZF1pQaM" width="560" height="315" frameborder="0" allowfullscreen=""></iframe><br /><a href="https://youtube.com/watch?v=lPRHZF1pQaM">UNI'S ON AIR（ユニゾンエアー ）</a></p>
+<p>こんな<a class="keyword" href="http://d.hatena.ne.jp/keyword/%B2%BB%A5%B2%A1%BC">音ゲー</a>見たことなかったのですげーと感動した笑</p>
+<p>使われている映像も写真もアプリ限定の撮りおろしとのことで、貴重で最高にかわいいものが初期の段階でも多く見られる。</p>
+<p> </p>
+<h4 id="楽曲メンバーを知れる"><span style="font-size: 150%;">楽曲、メンバーを知れる</span></h4>
+<p>　曲選択画面から曲の歌詞が、メンバーのページからメンバーの情報やブログをみることができる。</p>
+<p><img class="hatena-fotolife" title="f:id:konakomoti:20190924234229p:plain" src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20190924/20190924234229.png" alt="f:id:konakomoti:20190924234229p:plain" /></p>
+<p> <img class="hatena-fotolife" title="f:id:konakomoti:20190924234253p:plain" src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20190924/20190924234253.png" alt="f:id:konakomoti:20190924234253p:plain" /></p>
+<p>楽曲、メンバーのことをまだまだ詳しく知らない僕のような人にとってとてもありがたい。</p>
+<p>曲をプレイして知ることで好きな曲が見つかるし、ゲームも上手になる。</p>
+<p> </p>
+<h4 id="ゲームだけのオリジナルのドラマムービーがある"><span style="font-size: 150%;">ゲームだけのオリジナルのドラマ、ムービーがある</span></h4>
+<p><img class="hatena-fotolife" title="f:id:konakomoti:20190925002557p:plain" src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20190925/20190925002557.png" alt="f:id:konakomoti:20190925002557p:plain" /></p>
+<p>　ライブをクリアして手に入れたチケットでドラマを見たり、メンバーを強化してムービーを開放したりと、楽しみがたくさんある。</p>
+<p> </p>
+<h4 id="難易度"> <span style="font-size: 150%;">難易度</span></h4>
+<p>　まだ始めて数時間だがこのゲーム、難しいと感じた。特に、指定された矢印の方向にはじく要素が難易度をあげていると思う。上下左右の4方向は慣れるまで練習しかないかなー</p>
+<p> </p>
+<p> </p>
+<p>まあでも<a class="keyword" href="http://d.hatena.ne.jp/keyword/%C7%B5%CC%DA%BA%E446">乃木坂46</a>の<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%EA%A5%BA%A5%E0%A5%B2%A1%BC%A5%E0">リズムゲーム</a>が簡単すぎたのでこれくらい難しいほうが燃える笑</p>
+<p> </p>
+<p> </p>
+-----
+--------
+AUTHOR: konakomoti
+TITLE: 人生の夏休み
+BASENAME: 2019/09/20/002217
+STATUS: Publish
+ALLOW COMMENTS: 1
+CONVERT BREAKS: 0
+DATE: 09/20/2019 00:22:17
+IMAGE: https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20190920/20190920001720.jpg
+-----
+BODY:
+<p>真夏の全国ツアー、<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%A4%A5%F3%A5%BF%A1%BC%A5%F3%A5%B7%A5%C3%A5%D7">インターンシップ</a>、握手会、、、僕の濃密な夏は終わりました。笑</p>
+<p>今年も残り約三か月なので、後悔が残らぬよう毎日を充実させていきたい。</p>
+<p> </p>
+<p> </p>
+<p> </p>
+<p> </p>
+<p> </p>
+<p><img class="hatena-fotolife" title="f:id:konakomoti:20190920001720j:plain" src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20190920/20190920001720.jpg" alt="f:id:konakomoti:20190920001720j:plain" /></p>
+<p> </p>
+<p>とは言っても切り替えは難しい～</p>
+-----
+--------
+AUTHOR: konakomoti
+TITLE: Cloud（クラウド）について
+BASENAME: 2019/08/25/222933
+STATUS: Publish
+ALLOW COMMENTS: 1
+CONVERT BREAKS: 0
+DATE: 08/25/2019 22:29:33
+IMAGE: https://images-fe.ssl-images-amazon.com/images/I/51gNzK1O1LL._SL160_.jpg
+-----
+BODY:
+<p><a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%A4%A5%F3%A5%BF%A1%BC%A5%F3%A5%B7%A5%C3%A5%D7">インターンシップ</a>で、<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%AF%A5%E9%A5%A6%A5%C9">クラウド</a>サービスを扱う会社にお邪魔させてもらえることになったので、<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%AF%A5%E9%A5%A6%A5%C9">クラウド</a>についてかるーく勉強したのでまとめてみた。</p>
+<p> </p>
+<p> 参考にした本↓</p>
+<div class="freezed">
+<div class="hatena-asin-detail"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4797399996/hatena-blog-22/"><img class="hatena-asin-detail-image" title="イラスト図解式 この一冊で全部わかるクラウドの基本 第2版" src="https://images-fe.ssl-images-amazon.com/images/I/51gNzK1O1LL._SL160_.jpg" alt="イラスト図解式 この一冊で全部わかるクラウドの基本 第2版" /></a>
+<div class="hatena-asin-detail-info">
+<p class="hatena-asin-detail-title"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4797399996/hatena-blog-22/">イラスト図解式 この一冊で全部わかるクラウドの基本 第2版</a></p>
+<ul>
+<li><span class="hatena-asin-detail-label">作者:</span> 林雅之</li>
+<li><span class="hatena-asin-detail-label">出版社/メーカー:</span> <a class="keyword" href="http://d.hatena.ne.jp/keyword/SB%A5%AF%A5%EA%A5%A8%A5%A4%A5%C6%A5%A3%A5%D6">SBクリエイティブ</a></li>
+<li><span class="hatena-asin-detail-label">発売日:</span> 2019/04/20</li>
+<li><span class="hatena-asin-detail-label">メディア:</span> 単行本</li>
+<li><a href="http://d.hatena.ne.jp/asin/4797399996/hatena-blog-22" target="_blank">この商品を含むブログを見る</a></li>
+</ul>
+</div>
+<div class="hatena-asin-detail-foot"> </div>
+</div>
+</div>
+<ul class="table-of-contents">
+    <li><a href="#クラウドとは">クラウドとは</a></li>
+    <li><a href="#クラウド使用によるメリットデメリット">クラウド使用によるメリット、デメリット</a></li>
+    <li><a href="#終わりに">終わりに</a></li>
+</ul>
+<h4 id="クラウドとは"><span style="font-size: 150%;"><a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%AF%A5%E9%A5%A6%A5%C9">クラウド</a>とは</span></h4>
+<p>　本来自身のコンピュータで行う情報処理を、インターネットを通して<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%AF%A5%E9%A5%A6%A5%C9">クラウド</a>事業者のコンピュータで行うサービスのこと。</p>
+<p>　<span style="font-size: 80%;">ネットワークやインターネットを図で表す際、雲を用いることから<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%AF%A5%E9%A5%A6%A5%C9">クラウド</a>【雲】であると言われているそう</span></p>
+<p><img class="hatena-fotolife" title="f:id:konakomoti:20190825210456j:plain" src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20190825/20190825210456.jpg" alt="f:id:konakomoti:20190825210456j:plain" /></p>
+<p> </p>
+<p>　本書では、銀行預金に例えられていた。</p>
+<p>　お金（＝情報資産）を手元に保管することなく金融機関（＝<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%AF%A5%E9%A5%A6%A5%C9">クラウド</a>事業者）に預ける。お金が必要な時はATMを利用するように、<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%AF%A5%E9%A5%A6%A5%C9">クラウド</a>では情報が欲しいときインターネットを通じて利用する。どこで情報を管理しているか、どのような処理をされているか意識することなく使用している。</p>
+<p><span style="font-size: 80%;">この例え分かりやすっ</span></p>
+<p> </p>
+<h4 id="クラウド使用によるメリットデメリット"><span style="font-size: 150%;"><a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%AF%A5%E9%A5%A6%A5%C9">クラウド</a>使用によるメリット、デメリット</span></h4>
+<p><span style="color: #0000cc;">メリット</span></p>
+<p><span style="color: #2196f3;"><span style="color: #000000;">①</span><span style="color: #333333;">経済性</span></span></p>
+<p>　データを<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%AF%A5%E9%A5%A6%A5%C9">クラウド</a>側で一括管理するので、コストの削減になる。</p>
+<p>②<span style="color: #333333;">可用性</span></p>
+<p>　データ管理のために、災害対策（バックアップ）などを<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%AF%A5%E9%A5%A6%A5%C9">クラウド</a>事業者の強固なデータセンターや、災害が起きてもサービスを継続利用できるための措置がなされているため、可用性の高い環境がある。</p>
+<p>③<span style="color: #333333;">柔軟性</span></p>
+<p>　必要な時に必要な分だけサービスを利用するので、必要な時拡張し、必要ないとき縮小するので場合に応じた利用が可能。</p>
+<p>④<span style="color: #333333;">構築スピードの速さ</span></p>
+<p>　システムを構築しようと考えたときに、<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%AF%A5%E9%A5%A6%A5%C9">クラウド</a>事業者が用意しているサービスを利用するのですぐに環境を整えられる。</p>
+<p><span style="color: #ff0000;">デメリット</span></p>
+<p>①<span style="color: #333333;">費用</span></p>
+<p>　長期的にみると、オンプレミス(企業が、自社でシステムを<a class="keyword" href="http://d.hatena.ne.jp/keyword/%CA%DD%CD%AD">保有</a>し、運用すること)のほうが費用を抑えられる。</p>
+<p>②<span style="color: #333333;">安全性、信用性</span></p>
+<p>　安全性や信用性の高い事業者は多くあるが、それでも<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%AF%A5%E9%A5%A6%A5%C9">クラウド</a>事業者側のサーバーなどの障害、故障がありえる。また通信する際のセキュリティ面での考慮も必要。</p>
+<h4 id="終わりに"><span style="font-size: 24px;">終わりに</span></h4>
+<p><a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%AF%A5%E9%A5%A6%A5%C9">クラウド</a>についてまだまだ分からないことだらけだが、少し詳しくなれた気がする。<br />　自分自身<a class="keyword" href="http://d.hatena.ne.jp/keyword/iCloud">iCloud</a>、<a class="keyword" href="http://d.hatena.ne.jp/keyword/gmail">gmail</a>やOneDriveなど、<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%AF%A5%E9%A5%A6%A5%C9">クラウド</a>サービスをよく理解していなくても、不自由なくたくさん利用している。しかしデメリットを考えずに利用してしまっているので、ユーザ側でもできる対策など、考え直さなければと思うようになった。<br />　周りに<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%AF%A5%E9%A5%A6%A5%C9">クラウド</a>サービスがあふれていて、これからも使う機会が必ずあるので引き続き学んでいきたい。</p>
+<p> </p>
+<p> </p>
+-----
+--------
+AUTHOR: konakomoti
+TITLE: はじめてのブログ
+BASENAME: 2019/08/25/171017
+STATUS: Publish
+ALLOW COMMENTS: 1
+CONVERT BREAKS: 0
+DATE: 08/25/2019 17:10:17
+-----
+BODY:
+<p>このブログは、僕の趣味である<span style="color: #673ab7;"><strong><a class="keyword" href="http://d.hatena.ne.jp/keyword/%C7%B5%CC%DA%BA%E446">乃木坂46</a></strong></span>のことを共有したり、<span style="color: #62c7c9;"><strong>プログラミング</strong></span>等の勉強から学んだことの発信をしたいなーと思い開設しました。</p>
+<p>好きなことを書いていきたいと思っています。</p>
+<p> </p>
+<p> </p>
+<p> </p>
+<p><img class="hatena-fotolife" title="f:id:konakomoti:20190825170722j:plain" src="https://cdn-ak.f.st-hatena.com/images/fotolife/k/konakomoti/20190825/20190825170722.jpg" alt="f:id:konakomoti:20190825170722j:plain" /></p>
+-----
+--------
