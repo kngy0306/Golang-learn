@@ -1,24 +1,23 @@
 package main
 
 import (
-	"app/src/pokeAPI/app"
 	"fmt"
 	"net/http"
 )
 
 func main() {
-	number := 3 // 取り出す数
+	number := 9 // 取り出す数
 
-	pokeList, _, err := app.GetPokemon(number)
+	pokeList, _, err := GetPokemon(number)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	err = app.ShowPokemon(pokeList)
+	err = ShowPokemon(pokeList)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	http.HandleFunc("/", app.IndexHandler)
+	http.HandleFunc("/", IndexHandler)
 	http.ListenAndServe(":3000", nil)
 }
