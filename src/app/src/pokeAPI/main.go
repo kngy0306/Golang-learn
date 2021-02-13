@@ -18,7 +18,7 @@ type PokeInfo struct {
 
 func main() {
 	http.HandleFunc("/pokedex", PokeHandler)
-	http.Handle("/", http.FileServer(http.Dir("front")))
+	http.Handle("/", http.FileServer(http.Dir("index")))
 	http.ListenAndServe(":3000", nil)
 }
 
