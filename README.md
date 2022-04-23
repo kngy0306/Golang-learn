@@ -1,8 +1,10 @@
 # 参考サイト
+
 # はじめてのGo―シンプルな言語仕様，型システム，並行処理
+
 https://gihyo.jp/dev/feature/01/go_4beginners
 
-### インポート時のオプション指定
+## インポート時のオプション指定
 
 ```go
 import (
