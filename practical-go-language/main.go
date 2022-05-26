@@ -2,17 +2,11 @@ package main
 
 import (
 	"fmt"
-	"html"
-	"log"
-	"net/http"
 )
 
-func FooHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
-}
-
 func main() {
-	http.HandleFunc("/bar", FooHandler)
-
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	ary := [5]int{1, 2, 3, 4, 5}
+	for _, index := range ary {
+		fmt.Println(index)
+	}
 }
